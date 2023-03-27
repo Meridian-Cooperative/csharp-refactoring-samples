@@ -1,8 +1,10 @@
-﻿namespace RefactoringSamples
+﻿using Oracle.ManagedDataAccess.Client;
+
+namespace RefactoringSamples
 {
+    // make this class testable
     public class VoterRegistrationService
     {
-        // make this class testable
         public bool RegisterForVote(Person person)
         {
             if (person.CanVote())
@@ -17,11 +19,17 @@
     // cannot change this class as its used widely in system
     public static class VoterRegistryRepository
     {
-        static List<Person> _listOfVoters = new List<Person>();
-
+        static readonly String _connectionString = "DATA SOURCE=10.1.1.1:1521/voterdb;User Id=user1;Password=pwd1;Pooling=True;Connection Timeout=1";
         public static void AddToRegistry(Person p)
         {
-            _listOfVoters.Add(p);
+            using (OracleConnection conn = new OracleConnection(_connectionString))
+            {
+                conn.Open();
+
+                OracleCommand insertCommand = conn.CreateCommand();
+                insertCommand.CommandText = $"insert into voters values ('{p.Name}')";
+                insertCommand.ExecuteNonQuery();
+            }
         }
     }
 }
