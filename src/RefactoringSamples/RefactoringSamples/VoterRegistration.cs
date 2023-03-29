@@ -14,6 +14,8 @@ namespace RefactoringSamples
             }
             return false;
         }
+
+
     }
 
     // cannot change this class as its used widely in system
@@ -29,6 +31,19 @@ namespace RefactoringSamples
                 OracleCommand insertCommand = conn.CreateCommand();
                 insertCommand.CommandText = $"insert into voters values ('{p.Name}')";
                 insertCommand.ExecuteNonQuery();
+            }
+        }
+
+        public static bool IsRegistered(Person p)
+        {
+            using (OracleConnection conn = new OracleConnection(_connectionString))
+            {
+                conn.Open();
+
+                OracleCommand selectCommand = conn.CreateCommand();
+                selectCommand.CommandText = "select count(1) from voters where name = '{p.Name}'";
+                int count = (int) selectCommand.ExecuteScalar();
+                return count > 0;
             }
         }
     }
